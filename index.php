@@ -14,7 +14,7 @@ include('TwisterDust.php');
 
 $files = new Twister(new TwisterConnection('127.0.0.1','test'),'files');
 $users = new Twister(new TwisterConnection('127.0.0.1','test'),'users');
-$files->setRelation('user', $users, '_id');
+$files->addRelation('user', $users, '_id');
 /*     
 $u1 = $users->getDust(array('firstname'=>'benjamin', 'lastname'=>'baschet'));
 $u1->insert(); // insert

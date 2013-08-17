@@ -7,7 +7,7 @@
 class Twister extends TwisterObject
 {
     protected $tc;
-    protected $relations = array();
+    protected $relations = array(); 
     protected $dustName = 'TwisterDust';
     protected $bagName = 'TwisterBag'; // objet des curseurs
     /**
@@ -119,6 +119,18 @@ class Twister extends TwisterObject
         return $this;
     }
     /**
+     * @brief insert data on array
+     * @param TwisterDust $dust
+     * @param type $field
+     * @param type $value
+     * @return \Twister
+     */
+    public function update(TwisterDust $dust, $field, $value)
+    {
+        $this->getConnection()->update($dust->getData(), $field, $value);
+        return $this;
+    }
+    /**
      * @brief insert a dust
      * @param TwisterDust $dust
      * @return \Twister
@@ -165,12 +177,14 @@ class Twister extends TwisterObject
      * @param type $relationField
      * @return \Twister
      */
-    public function setRelation($sourceField, Twister $relationTwister, $relationField)
+    public function addRelation($sourceField, Twister $relationTwister, $relationField, $type='simple')
     {
-        $orel                           = new stdClass();
-        $orel->field                    = $relationField;
-        $orel->twister                  = $relationTwister;
-        $this->relations[$sourceField]  = $orel;
+        $orel1                              = new stdClass();
+        $orel1->field                       = $relationField;
+        $orel1->twister                     = $relationTwister;
+        $orel1->type                        = $type;
+        $this->relations[$sourceField]      = $orel1;
+        
         return $this;
     }
     /**

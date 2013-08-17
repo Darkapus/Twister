@@ -102,9 +102,12 @@ class TwisterDust extends TwisterObject
         $this->getTwister()->save($this);
         return $this;
     }
-    /*
+    /**
      * @brief get the relation field data
-     * @return string or MongoId
+     * @todo put logic in Twister class
+     * @param string $field
+     * @param mixte $value // can be a string / array / object
+     * @return TwisterBag or TwisterDust
      */
     public function getRelation($field, $value)
     {
@@ -112,9 +115,20 @@ class TwisterDust extends TwisterObject
         if(key_exists($field, $relations))
         {
             $relation   = $relations[$field];
-            $find       = 'findOneBy_'.$relation->field;
+            switch($relation->type)
+            {
+                case 'simple':
+                case 'single':
+                    $find       = 'findOneBy_'.$relation->field;
+                    break;
+                case 'multiple':
+                    $find       = 'findBy_'.$relation->field;
+                    break;
+            }
+            
             return $relation->twister->$find($value);
         }
+        
         return $value;
     }
     /**
@@ -128,17 +142,34 @@ class TwisterDust extends TwisterObject
     public function __call($name, $arguments) {
         switch(substr($name,0,3))
         {
+            case 'add':
+                $get            = substr($name,3);
+                //@todo put logic in Twister class
+                if($arguments[0] instanceof TwisterDust)
+                {
+                    $relations      = $this->getTwister()->getRelations();
+                    $field          = $relations[$name]->field;
+                    $this->getTwister()->update($this, $get, $arguments[0]->$field);
+                }
+                else
+                {
+                    $this->getTwister()->update($this, $get, $arguments[0]);
+                }
+                return $this;
+                break;
             case 'get':
                 $get    = substr($name,3);
+                //@todo put logic in Twister class
                 return $this->getRelation($get, $this->data->$get);
                 break;
             case 'set':
                 $set        = substr($name,3);
                 $value = $arguments[0];
+                //@todo put logic in Twister class
                 if($arguments[0] instanceof TwisterDust)
                 {
                     $relations  = $this->getTwister()->getRelations();
-                    $o          = $relations[$set];
+                    $o          = $relations['simple'][$set];
                     if((string)$o->twister == (string)$value->getTwister())
                     {
                         $field      = 'get'.$o->field;
