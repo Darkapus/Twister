@@ -12,8 +12,12 @@ include('TwisterDust.php');
 //$dust = new TwisterDust(array('prenom'=>'benjamin', 'nom'=>'baschet'));
 //$twist->insert($dust);
 $conn = new TwisterConnection('127.0.0.1','test');
-$twist = new Twister($conn,'fichier');
-$val = $twist->findOneBynom('Kungel');
+$users = new Twister($conn,'user');
+
+$u1 = new TwisterDust(array('firstname'=>'benjamin', 'lastname'=>'baschet'));
+$users->insert($u1);
+
+
 
 $val->insert();
 //$val->setnom('baschet');
