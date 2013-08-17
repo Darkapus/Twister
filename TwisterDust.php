@@ -34,7 +34,7 @@ class TwisterDust extends TwisterObject
     }
     /**
      * @brief get twister. Needed for insert / update / delete
-     * @return Twister/
+     * @return \Twister
      */
     public function getTwister()
     {

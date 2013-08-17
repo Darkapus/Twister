@@ -33,7 +33,7 @@ class Twister extends TwisterObject
     /**
      * @brief generate dust class with data
      * @param type $data
-     * @return \name
+     * @return \TwisterDust
      */
     public function getDust($data)
     {
