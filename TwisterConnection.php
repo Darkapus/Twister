@@ -101,7 +101,7 @@ class TwisterConnection extends TwisterObject
      * @param type $value
      * @return \TwisterConnection
      */
-    public function update($mongoObject, $field, $value)
+    public function push($mongoObject, $field, $value)
     {
         $this->getCollection()->update(array('_id'=>$mongoObject->_id), array('$push', array($field=>$value)));
         return $this;

@@ -35,7 +35,7 @@ class Twister extends TwisterObject
      * @param type $data
      * @return \TwisterDust
      */
-    public function getDust($data)
+    public function getDust($data=array())
     {
         $name = $this->dustName;
         return new $name($this, $data);
@@ -125,9 +125,9 @@ class Twister extends TwisterObject
      * @param type $value
      * @return \Twister
      */
-    public function update(TwisterDust $dust, $field, $value)
+    public function push(TwisterDust $dust, $field, $value)
     {
-        $this->getConnection()->update($dust->getData(), $field, $value);
+        $this->getConnection()->push($dust->getData(), $field, $value);
         return $this;
     }
     /**
