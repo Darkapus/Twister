@@ -95,6 +95,18 @@ class TwisterConnection extends TwisterObject
         return $this;
     }
     /**
+     * @brief pull data on field multiple
+     * @param type $mongoObject
+     * @param type $field
+     * @param type $value
+     * @return \TwisterConnection
+     */
+    public function pull($mongoObject, $field, $value)
+    {
+        $this->getCollection()->update(array('_id'=>$mongoObject->_id), array('$pull', array($field=>$value)));
+        return $this;
+    }
+    /**
      * @brief insert data on field multiple
      * @param type $mongoObject
      * @param type $field

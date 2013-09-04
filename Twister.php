@@ -105,7 +105,7 @@ class Twister extends TwisterObject
      */
     public function delete(TwisterDust $dust)
     {
-        $this->getConnection()->remove(array('_id'=>$dust->getId()));
+        $this->getConnection()->delete(array('_id'=>$dust->getId()));
         return $this;
     }
     /**
@@ -196,13 +196,14 @@ class Twister extends TwisterObject
         return $this->relations;
     }
     public function __call($name, $arguments) {
-        $t = explode('By_', $name);
-        switch ($t[0])
+        preg_match_all("/(findOne|find)By_(.*)/", $name, $matches);
+        
+        switch ($matches[1][0])
         {
             case 'findOne':
-                return $this->findOneByField($t[1],$arguments[0]);
+                return $this->findOneByField($matches[2][0],$arguments[0]);
             case 'find':
-                return $this->findByField($t[1],$arguments[0]);    
+                return $this->findByField($matches[2][0],$arguments[0]);    
         }
     }
 }

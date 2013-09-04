@@ -51,11 +51,12 @@ class TwisterDust extends TwisterObject
         return $this;
     }
     /**
-     * @brief return the data
+     * @brief return the data with unserialize methode if serialize property exists 
      * @return object
      */
     public function getData()
     {
+        if(property_exists($this->data, 'serialize')) $this->data->unserialize = unserialize ($this->data->serialize);
         return $this->data;
     }
     /**
