@@ -1,8 +1,9 @@
 <?php
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * @brief need to be tested
+ * @class TwisterFactory
+ * @author prismadeath (Benjamin Baschet)
  */
 class TwisterFactory extends TwisterObject
 {
