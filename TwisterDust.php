@@ -4,7 +4,7 @@
  * @class TwisterDust
  * @author prismadeath (Benjamin Baschet)
  */
-class TwisterDust extends TwisterObject
+class TwisterDust extends TwisterObject implements IDust
 {
     /**
      * @brief here, stocked data from mongodb
@@ -16,12 +16,7 @@ class TwisterDust extends TwisterObject
      * @var type 
      */
     private $twister;
-    public function __construct(Twister $twister, $data)
-    {
-        if(!is_object($data)) $data = (object) $data;
-        $this->setData($data);
-        $this->setTwister($twister);
-    }
+    
     /**
      * @brief set twister, Needed for insert / update / delete
      * @param Twister $twister
@@ -47,6 +42,7 @@ class TwisterDust extends TwisterObject
      */
     public function setData($data)
     {
+        if(!is_object($data)) $data = (object) $data;
         $this->data = $data;
         return $this;
     }
@@ -56,7 +52,6 @@ class TwisterDust extends TwisterObject
      */
     public function getData()
     {
-        if(property_exists($this->data, 'serialize')) $this->data->unserialize = unserialize ($this->data->serialize);
         return $this->data;
     }
     /**

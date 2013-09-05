@@ -38,7 +38,10 @@ class Twister extends TwisterObject
     public function getDust($data=array())
     {
         $name = $this->dustName;
-        return new $name($this, $data);
+        $dust = new $name();
+        $dust->setTwister($this);
+        $dust->setData($data);
+        return $dust;
     }
     /**
      * @brief set connection
