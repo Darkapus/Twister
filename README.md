@@ -1,6 +1,6 @@
 MongoReader
 ===========
-<code>
+'''
 
 // create connections
 
@@ -52,4 +52,4 @@ $f1->setpath('/var/www/myface.png')->setname('mtface')->setuser($u1)->insert();
 var_dump($files->findOne()->getuser()); // search and take user relation
 
 
-</code>
+'''
