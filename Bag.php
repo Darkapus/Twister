@@ -1,10 +1,11 @@
 <?php
+namespace Twister;
 /**
  * @brief manage the cursor
  * @class TwisterBag
  * @author prismadeath (Benjamin Baschet)
  */
-class TwisterBag extends TwisterObject implements Iterator
+class Bag extends Object implements \Iterator
 {
     private $twister; // la connection mongo
     private $bag; // le resultat
@@ -43,7 +44,7 @@ class TwisterBag extends TwisterObject implements Iterator
      * @param Twister $t
      * @return \TwisterBag
      */
-    public function setTwister(Twister $t){
+    public function setCollection(Collection $t){
         $this->twister = $t;
         return $this;
     }
@@ -51,7 +52,7 @@ class TwisterBag extends TwisterObject implements Iterator
      * @brief twister needed 
      * @return \Twister
      */
-    public function getTwister()
+    public function getCollection()
     {
         return $this->twister;
     }

@@ -1,10 +1,11 @@
 <?php
+namespace Twister;
 /**
  * @class TwisterObject
  * @brief basic object
  * @author prismadeath (Benjamin Baschet)
  */
-class TwisterObject
+class Object
 {
     /**
      * @brief get string class name

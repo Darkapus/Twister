@@ -1,21 +1,22 @@
 <?php
+namespace Twister;
 /**
  * @brief main class, mongo request manager
  * @class Twister
  * @author prismadeath (Benjamin Baschet)
  */
-class Twister extends TwisterObject
+class Collection extends Object
 {
     protected $tc;
     protected $relations = array(); 
-    protected $dustName = 'TwisterDust';
-    protected $bagName = 'TwisterBag'; // objet des curseurs
+    protected $dustName = '\Twister\Dust';
+    protected $bagName = '\Twister\Bag'; // objet des curseurs
     /**
      * 
      * @param TwisterConnection $tc
      * @param type $collectionName
      */
-    public function __construct(TwisterConnection $tc, $collectionName=null) 
+    public function __construct(Connection $tc, $collectionName=null) 
     {
         $this->setConnection($tc);
         if($collectionName) $tc->setCollectionName($collectionName);
@@ -39,7 +40,7 @@ class Twister extends TwisterObject
     {
         $name = $this->dustName;
         $dust = new $name();
-        $dust->setTwister($this);
+        $dust->setCollection($this);
         $dust->setData($data);
         return $dust;
     }
@@ -106,7 +107,7 @@ class Twister extends TwisterObject
      * @param TwisterDust $dust
      * @return \Twister
      */
-    public function delete(TwisterDust $dust)
+    public function delete(Dust $dust)
     {
         $this->getConnection()->delete(array('_id'=>$dust->getId()));
         return $this;
@@ -116,7 +117,7 @@ class Twister extends TwisterObject
      * @param TwisterDust $dust
      * @return \Twister
      */
-    public function save(TwisterDust $dust)
+    public function save(Dust $dust)
     {
         $this->getConnection()->save($dust->getData());
         return $this;
@@ -128,17 +129,17 @@ class Twister extends TwisterObject
      * @param type $value
      * @return \Twister
      */
-    public function push(TwisterDust $dust, $field, $value)
+    public function push(Dust $dust, $field, $value)
     {
         $this->getConnection()->push($dust->getData(), $field, $value);
         return $this;
     }
     /**
      * @brief insert a dust
-     * @param TwisterDust $dust
+     * @param Dust $dust
      * @return \Twister
      */
-    public function insert(TwisterDust $dust)
+    public function insert(Dust $dust)
     {
         $this->getConnection()->insert($dust->getData());
         return $this;
@@ -180,11 +181,11 @@ class Twister extends TwisterObject
      * @param type $relationField
      * @return \Twister
      */
-    public function addRelation($sourceField, Twister $relationTwister, $relationField, $type='simple')
+    public function addRelation($sourceField, Collection $collection, $relationField, $type='simple')
     {
-        $orel1                              = new stdClass();
+        $orel1                              = new \stdClass();
         $orel1->field                       = $relationField;
-        $orel1->twister                     = $relationTwister;
+        $orel1->twister                     = $collection;
         $orel1->type                        = $type;
         $this->relations[$sourceField]      = $orel1;
         

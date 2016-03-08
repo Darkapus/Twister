@@ -1,10 +1,11 @@
 <?php
+namespace Twister;
 /**
  * @brief manage the connection language with mongodb
  * @class TwisterConnection
  * @author prismadeath (Benjamin Baschet)
  */
-class TwisterConnection extends TwisterObject
+class Connection extends Object
 {
     private $collection;
     private $conn;
@@ -16,10 +17,13 @@ class TwisterConnection extends TwisterObject
      * @param type $args
      */
     function __construct($server, $dbname=NULL, $args=NULL) {
-        $class = 'MongoClient'; 
+        $class = '\MongoClient'; 
   
         if(!class_exists($class)){ 
-            $class = 'Mongo'; 
+            $class = '\Mongo'; 
+            if(!class_exists($class)){
+                Throw new Exception("Please, install mongo for php: sudo pecl install mongo");
+            }
         } 
         
         $this->conn = new $class($server); 

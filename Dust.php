@@ -1,10 +1,11 @@
 <?php
+namespace Twister;
 /**
  * @brief manage the data from mongodb
  * @class TwisterDust
  * @author prismadeath (Benjamin Baschet)
  */
-class TwisterDust extends TwisterObject implements IDust
+class Dust extends Object implements IDust
 {
     /**
      * @brief here, stocked data from mongodb
@@ -22,7 +23,7 @@ class TwisterDust extends TwisterObject implements IDust
      * @param Twister $twister
      * @return \TwisterDust
      */
-    public function setTwister(Twister $twister)
+    public function setCollection(Collection $twister)
     {
         $this->twister = $twister;
         return $this;
@@ -31,7 +32,7 @@ class TwisterDust extends TwisterObject implements IDust
      * @brief get twister. Needed for insert / update / delete
      * @return \Twister
      */
-    public function getTwister()
+    public function getCollection()
     {
         return $this->twister;
     }
@@ -75,7 +76,7 @@ class TwisterDust extends TwisterObject implements IDust
      */
     public function newId()
     {
-        return $this->data->_id=new MongoId();
+        return $this->data->_id=new \MongoId();
     }
     /**
      * @brief insert a new entry on mongodb
@@ -84,7 +85,7 @@ class TwisterDust extends TwisterObject implements IDust
     public function insert()
     {
         $this->newId();
-        $this->getTwister()->insert($this);
+        $this->getCollection()->insert($this);
         return $this;
     }
     /**
@@ -93,7 +94,7 @@ class TwisterDust extends TwisterObject implements IDust
      */
     public function delete()
     {
-        $this->getTwister()->delete($this);
+        $this->getCollection()->delete($this);
         return $this;
     }
     /**
@@ -102,7 +103,7 @@ class TwisterDust extends TwisterObject implements IDust
      */
     public function save()
     {
-        $this->getTwister()->save($this);
+        $this->getCollection()->save($this);
         return $this;
     }
     /**
@@ -114,7 +115,7 @@ class TwisterDust extends TwisterObject implements IDust
      */
     public function getRelation($field, $value)
     {
-        $relations      = $this->getTwister()->getRelations();
+        $relations      = $this->getCollection()->getRelations();
         if(key_exists($field, $relations))
         {
             $relation   = $relations[$field];
@@ -158,17 +159,17 @@ class TwisterDust extends TwisterObject implements IDust
             case 'add':
                 $get                = $matches[2][0];
                 //@todo put logic in Twister class
-                if($arguments[0] instanceof TwisterDust)
+                if($arguments[0] instanceof IDust)
                 {
-                    $relations      = $this->getTwister()->getRelations();
+                    $relations      = $this->getCollection()->getRelations();
                     $field          = $relations[$name]->field;
                     // push a data (Multiple Relation)
-                    $this->getTwister()->push($this, $get, $arguments[0]->$field);
+                    $this->getCollection()->push($this, $get, $arguments[0]->$field);
                 }
                 else
                 {
                     // push a value
-                    $this->getTwister()->push($this, $get, $arguments[0]);
+                    $this->getCollection()->push($this, $get, $arguments[0]);
                 }
                 return $this;
                 break;
@@ -184,17 +185,18 @@ class TwisterDust extends TwisterObject implements IDust
                 $set                = $matches[2][0];
                 $value              = $arguments[0];
                 //@todo put logic in Twister class
-                if($arguments[0] instanceof TwisterDust)
+                if($value instanceof IDust)
                 {
-                    $relations      = $this->getTwister()->getRelations();
-                    $o              = $relations['simple'][$set];
-                    if((string)$o->twister == (string)$value->getTwister())
+                    $relations      = $this->getCollection()->getRelations();
+                    $o              = $relations[$set];
+
+                    if((string)$o->twister == (string)$value->getCollection())
                     {
                         $field      = 'get'.$o->field;
                         $value      = $value->$field();
                     }
                 }
-                 $this->data->$set  = $arguments[0];
+                 $this->data->$set  = $value;
                  return $this;
             default:
                 throw new Exception($name.' dont exist');
