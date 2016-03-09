@@ -4,9 +4,11 @@ MongoReader
 
 ### create connections
 
-> $files = new \Twister\Collection(new \Twister\Connection('127.0.0.1','test'),'files');
+> $db = new \Twister\Connection('127.0.0.1','test');
 
-> $users = new \Twister\Collection(new \Twister\Connection('127.0.0.1','test'),'users');
+> $files = new \Twister\Collection($db,'files'); // connect to files collection
+
+> $users = new \Twister\Collection($db,'users'); // connect to users collection
 
 ### add relational link
 
