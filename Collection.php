@@ -67,8 +67,14 @@ class Collection extends Object
      */
     public function getDocument($data=array())
     {
-        // cast data on new documentName()
-        $document = $this->cast((object)$data);
+        if($data){
+            // cast data on new documentName()
+            $document = $this->cast((object)$data);
+        }
+        else{
+            // create empty document
+            $document = new $this->documentName;
+        }
         // set current collection to easy use for insert/add/save/delete
         $document->setCollection($this);
         return $document;
