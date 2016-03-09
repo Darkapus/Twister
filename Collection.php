@@ -269,8 +269,8 @@ class Collection extends Object
         if (is_string($destination)) {
             $destination = new $destination();
         }
-        $sourceReflection = new ReflectionObject($sourceObject);
-        $destinationReflection = new ReflectionObject($destination);
+        $sourceReflection = new \ReflectionObject($sourceObject);
+        $destinationReflection = new \ReflectionObject($destination);
         $sourceProperties = $sourceReflection->getProperties();
         foreach ($sourceProperties as $sourceProperty) {
             $sourceProperty->setAccessible(true);
@@ -285,5 +285,27 @@ class Collection extends Object
             }
         }
         return $destination;
+    }
+    public function getDataFromDocument(Document $document){
+    	$std = array();
+    	$documentReflection = new \ReflectionObject($document);
+    	$documentProperties = $documentReflection->getProperties();
+    	foreach ($documentProperties as $documentPropertie) {
+    		$documentPropertie->setAccessible(true);
+    		$name = $documentPropertie->getName();
+    		$value = $documentPropertie->getValue($document);
+    		if(is_object($value){
+    			if($value instanceof IDocument){
+    				$std[$name] = $this->getArray($value);
+    			}
+    			else{
+    				continue;
+    			}
+    		}
+    		else{
+    			$std[$name] = $value;
+    		}
+    	}
+    	return $std;	
     }
 }
