@@ -59,6 +59,10 @@ class Collection extends Object
         $dust->setData($data);
         return $dust;
     }
+    public function getTable(){
+        $name = $this->documentName;
+        return $this->getConnection()->getDb()->$name;
+    }
     /**
      * extends Document or implement IDocument
      * if not define \Twister\Document by default
@@ -133,9 +137,7 @@ class Collection extends Object
      */
     public function find($search=NULL)
     {
-        $result = $this->getConnection()->find($search);
-       
-        return $this->getBag($result);
+        return $this->getBag($this->getTable()->find($search));
     }
     /**
      * @brief lauch a search and put it on dust.
@@ -145,7 +147,7 @@ class Collection extends Object
      */
     public function findOne($search=NULL)
     {
-        return $this->getDust($this->getConnection()->findOne($search));
+        return $this->getDust($this->getTable()->findOne($search));
     }
     /**
      * @brief delete a dust
@@ -154,7 +156,7 @@ class Collection extends Object
      */
     public function delete(Dust $dust)
     {
-        $this->getConnection()->delete(array('_id'=>$dust->getId()));
+        $this->getTable()->remove(array('_id'=>$dust->getId()));
         return $this;
     }
     /**
@@ -164,7 +166,7 @@ class Collection extends Object
      */
     public function save(Dust $dust)
     {
-        $this->getConnection()->save($dust->getData());
+        $this->getTable()->save($dust->getData());
         return $this;
     }
     /**
@@ -176,7 +178,7 @@ class Collection extends Object
      */
     public function push(Dust $dust, $field, $value)
     {
-        $this->getConnection()->push($dust->getData(), $field, $value);
+        $this->getTable()->update(array('_id'=>$dust->getData()->_id), array('$push', array($field=>$value)));
         return $this;
     }
     /**
@@ -186,7 +188,7 @@ class Collection extends Object
      */
     public function insert(Dust $dust)
     {
-        $this->getConnection()->insert($dust->getData());
+        $this->getTable()->insert($dust->getData());
         return $this;
     }
     /**
@@ -196,7 +198,7 @@ class Collection extends Object
      */
     public function create($name)
     {
-        $this->getConnection()->create($name);
+        $this->getTable()->create($name);
         return $this;
     }
     /**
