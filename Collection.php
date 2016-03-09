@@ -70,12 +70,21 @@ class Collection extends Object
         if($data){
             // cast data on new documentName()
             $document = $this->cast((object)$data);
+            // set current collection to easy use for insert/add/save/delete
+            $document->setCollection($this);
+            
+            return $document;
         }
         else{
             // create empty document
-            $document = new $this->documentName;
+            return false;
         }
-        // set current collection to easy use for insert/add/save/delete
+    }
+    /**
+     * create an empty document. Called before insert.
+     */ 
+    public function getEmptyDocument(){
+        $document = new $this->documentName;
         $document->setCollection($this);
         return $document;
     }
@@ -102,7 +111,7 @@ class Collection extends Object
     /**
      * @brief generate bag class
      * @param type $result
-     * @return \name
+     * @return \Twister\Cursor
      */
     public function getBag($result)
     {
@@ -111,7 +120,7 @@ class Collection extends Object
     }
     /**
      * @brief get twister connection
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function getConnection()
     {
@@ -120,7 +129,7 @@ class Collection extends Object
     /**
      * @brief launch a search and put it on bag
      * @param type $search
-     * @return \TwisterBag
+     * @return \Twister\Cursor
      */
     public function find($search=NULL)
     {
@@ -129,9 +138,10 @@ class Collection extends Object
         return $this->getBag($result);
     }
     /**
-     * @brief lauch a search and put it on dust
+     * @brief lauch a search and put it on dust.
+     * return false if dont find
      * @param type $search
-     * @return \TwisterDust
+     * @return false | \Twister\Document
      */
     public function findOne($search=NULL)
     {
@@ -140,7 +150,7 @@ class Collection extends Object
     /**
      * @brief delete a dust
      * @param TwisterDust $dust
-     * @return \Twister
+     * @return \Twister\Collection
      */
     public function delete(Dust $dust)
     {
@@ -150,7 +160,7 @@ class Collection extends Object
     /**
      * @brief save a dust
      * @param TwisterDust $dust
-     * @return \Twister
+     * @return \Twister\Collection
      */
     public function save(Dust $dust)
     {
@@ -162,7 +172,7 @@ class Collection extends Object
      * @param TwisterDust $dust
      * @param type $field
      * @param type $value
-     * @return \Twister
+     * @return \Twister\Collection
      */
     public function push(Dust $dust, $field, $value)
     {
@@ -172,7 +182,7 @@ class Collection extends Object
     /**
      * @brief insert a dust
      * @param Dust $dust
-     * @return \Twister
+     * @return \Twister\Collection
      */
     public function insert(Dust $dust)
     {
@@ -182,7 +192,7 @@ class Collection extends Object
     /**
      * @brief create collection
      * @param type $name
-     * @return \Twister
+     * @return \Twister\Collection
      */
     public function create($name)
     {
@@ -193,7 +203,7 @@ class Collection extends Object
      * @brief launch a search by field and value
      * @param type $field
      * @param type $value
-     * @return \TwisterDust
+     * @return \Twister\Document
      */
     public function findOneByField($field, $value)
     {
@@ -203,7 +213,7 @@ class Collection extends Object
      * @brief launch a search by field and value
      * @param type $field
      * @param type $value
-     * @return \TwisterBag
+     * @return \Twister\Cursor
      */
     public function findByField($field, $value)
     {
@@ -214,7 +224,7 @@ class Collection extends Object
      * @param type $sourceField
      * @param Twister $relationTwister
      * @param type $relationField
-     * @return \Twister
+     * @return \Twister\Collection
      */
     public function addRelation($sourceField, Collection $collection, $relationField, $type='simple')
     {
