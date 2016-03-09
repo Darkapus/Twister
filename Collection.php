@@ -8,18 +8,33 @@ namespace Twister;
 class Collection extends Object
 {
     protected $tc;
+    /**
+     * Relation descriptor
+     */
     protected $relations = array(); 
+    
     protected $dustName = '\Twister\Dust';
+    /**
+     * document name, mongo data will be cast on
+     */
+    protected $documentName = '\Twister\Document';
     protected $bagName = '\Twister\Bag'; // objet des curseurs
     /**
+     * Cursor, for reading more than one data
+     */
+    protected $cursorName = '\Twister\Cursor';
+    /**
      * 
-     * @param TwisterConnection $tc
+     * @param Connection $tc
      * @param type $collectionName
      */
-    public function __construct(Connection $tc, $collectionName=null) 
+    public function __construct(Connection $connection, $collectionName=null) 
     {
-        $this->setConnection($tc);
-        if($collectionName) $tc->setCollectionName($collectionName);
+        $this->setConnection($connection);
+        if($collectionName) 
+        {
+            $tc->setCollectionName($collectionName);
+        }
     }
     /**
      * @brief set dust name needed to generate work class
@@ -34,7 +49,7 @@ class Collection extends Object
     /**
      * @brief generate dust class with data
      * @param type $data
-     * @return \TwisterDust
+     * @return \Dust
      */
     public function getDust($data=array())
     {
@@ -45,13 +60,27 @@ class Collection extends Object
         return $dust;
     }
     /**
-     * @brief set connection
-     * @param type $tc
-     * @return \Twister
+     * extends Document or implement IDocument
+     * if not define \Twister\Document by default
+     * document maker with current data
+     * @return \Twister\Document
      */
-    public function setConnection($tc)
+    public function getDocument($data=array())
     {
-        $this->tc = $tc;
+        // cast data on new documentName()
+        $document = $this->cast((object)$data);
+        // set current collection to easy use for insert/add/save/delete
+        $document->setCollection($this);
+        return $document;
+    }
+    /**
+     * @brief set connection
+     * @param Connection $connection
+     * @return \Twister\Collection
+     */
+    public function setConnection(Connection $connection)
+    {
+        $this->tc = $connection;
         return $this;
     }
     /**
