@@ -296,11 +296,27 @@ class Collection extends Object
     		$value = $documentPropertie->getValue($document);
     		if(is_object($value){
     			if($value instanceof IDocument){
-    				$std[$name] = $this->getArray($value);
+    				$std[$name] = $this->getDataFromDocument($value);
     			}
     			else{
     				continue;
     			}
+    		}
+    		elseif(is_array($value)){
+    		    $std[$name] = array();
+    		    foreach($value as $v){
+    		        if(is_object($value){
+            			if($value instanceof IDocument){
+            				$std[$name][] = $this->getDataFromDocument($value);
+            			}
+            			else{
+            				continue;
+            			}
+            		}
+            		else{
+            		    $std[$name][] = $v;
+            		}
+    		    }
     		}
     		else{
     			$std[$name] = $value;
