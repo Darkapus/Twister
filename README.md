@@ -24,12 +24,14 @@ MongoReader
 
 ###update
 
+    $u1 = $users->findOne();
     $u1->setfirstname('benjamine');
     $u1->save(); // save
 
 
 ### duplicate
 
+    $u1 = $users->findOne();
     $u1->setfirstname('benjamin');
     $u1->insert(); // double
 
