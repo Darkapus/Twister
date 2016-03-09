@@ -4,13 +4,13 @@ MongoReader
 
 ### create connections
 
-> $files = new Twister(new TwisterConnection('127.0.0.1','test'),'files');
+> $files = new \Twister\Collection(new \Twister\Connection('127.0.0.1','test'),'files');
 
-> $users = new Twister(new TwisterConnection('127.0.0.1','test'),'users');
+> $users = new \Twister\Collection(new \Twister\Connection('127.0.0.1','test'),'users');
 
 ### add relational link
 
-$files->addRelation('user', $users, '_id');
+> $files->addRelation('user', $users, '_id');
 
 
 ###create
@@ -28,27 +28,27 @@ $files->addRelation('user', $users, '_id');
 
 ###update
 
-$u1->setfirstname('benjamine');
+> $u1->setfirstname('benjamine');
 
-$u1->save(); // save
+> $u1->save(); // save
 
 
 ### duplicate
 
-$u1->setfirstname('benjamin');
+> $u1->setfirstname('benjamin');
 
-$u1->insert(); // double
+> $u1->insert(); // double
 
 
 ### create a file with link to user
 
-$f1 = $files->getDust();// or $f1 = $files->getDust(array('path'=>'/var/www/myface.png', 'name'=>'myface', 'user'=>$u1->getId()));
+> $f1 = $files->getDust();// or $f1 = $files->getDust(array('path'=>'/var/www/myface.png', 'name'=>'myface', 'user'=>$u1->getId()));
 
-$f1->setpath('/var/www/myface.png')->setname('mtface')->setuser($u1)->insert();
+> $f1->setpath('/var/www/myface.png')->setname('mtface')->setuser($u1)->insert();
 
 
 ### show data
 
-var_dump($files->findOne()->getuser()); // search and take user relation
+> var_dump($files->findOne()->getuser()); // search and take user relation
 
 
