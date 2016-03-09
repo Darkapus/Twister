@@ -16,9 +16,8 @@ class Bag extends Object implements \Iterator
      * @param Twister $t
      * @param type $result
      */
-    public function __construct(Twister $t, $result) {
-        $this->setTwister($t);
-        
+    public function __construct(Collection $t, $result) {
+        $this->setCollection($t);
         $this->setBag($result);
     }
     /**
@@ -91,7 +90,7 @@ class Bag extends Object implements \Iterator
         {
             if($dd = $this->getBag()->getNext())
             {
-                $data = $this->getTwister()->getDust($dd);
+                $data = $this->getCollection()->getDust($dd);
                 $this->allDust[$this->currentDust] = $data;
             }
         }
