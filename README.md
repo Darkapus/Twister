@@ -26,5 +26,5 @@ MongoReader
 ### duplicate
 
     $u1 = $users->findOne();
-    $u2 clone $u1;
+    $u2 = clone $u1;
     $users->insert($u2); // double
