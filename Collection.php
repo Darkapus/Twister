@@ -13,16 +13,16 @@ class Collection extends Object
      */
     protected $relations = array(); 
     
-    protected $dustName = '\Twister\Dust';
     /**
      * document name, mongo data will be cast on
      */
     protected $documentName = '\Twister\Document';
-    protected $bagName = '\Twister\Bag'; // objet des curseurs
     /**
      * Cursor, for reading more than one data
      */
     protected $cursorName = '\Twister\Cursor';
+
+    protected $tableName = null;
     /**
      * 
      * @param Connection $tc
@@ -31,36 +31,24 @@ class Collection extends Object
     public function __construct(Connection $connection, $collectionName=null) 
     {
         $this->setConnection($connection);
-        if($collectionName) 
-        {
-            $tc->setCollectionName($collectionName);
-        }
+        $this->setTableName($collectionName);
     }
     /**
      * @brief set dust name needed to generate work class
      * @param type $name
-     * @return \Twister
+     * @return \Twister\Collection
      */
-    public function setDustName($name)
+    public function setDocumentName($name)
     {
-        $this->dustName = $name;
+        $this->documentName = $name;
         return $this;
     }
-    /**
-     * @brief generate dust class with data
-     * @param type $data
-     * @return \Dust
-     */
-    public function getDust($data=array())
-    {
-        $name = $this->dustName;
-        $dust = new $name();
-        $dust->setCollection($this);
-        $dust->setData($data);
-        return $dust;
+    public function setTableName($tableName){
+        $this->tableName = $tableName;
+        return $this;
     }
     public function getTable(){
-        $name = $this->documentName;
+        $name = $this->tableName;
         return $this->getConnection()->getDb()->$name;
     }
     /**
@@ -72,10 +60,9 @@ class Collection extends Object
     public function getDocument($data=array())
     {
         if($data){
+
             // cast data on new documentName()
             $document = $this->cast((object)$data);
-            // set current collection to easy use for insert/add/save/delete
-            $document->setCollection($this);
             
             return $document;
         }
@@ -89,7 +76,6 @@ class Collection extends Object
      */ 
     public function getEmptyDocument(){
         $document = new $this->documentName;
-        $document->setCollection($this);
         return $document;
     }
     /**
@@ -107,9 +93,9 @@ class Collection extends Object
      * @param type $name
      * @return \Twister
      */
-     public function setBagName($name)
+     public function setCursorName($name)
     {
-        $this->bagName = $name;
+        $this->cursorName = $name;
         return $this;
     }
     /**
@@ -117,9 +103,9 @@ class Collection extends Object
      * @param type $result
      * @return \Twister\Cursor
      */
-    public function getBag($result)
+    public function getCursor($result)
     {
-        $name = $this->bagName;
+        $name = $this->cursorName;
         return new $name($this, $result);
     }
     /**
@@ -135,9 +121,9 @@ class Collection extends Object
      * @param type $search
      * @return \Twister\Cursor
      */
-    public function find($search=NULL)
+    public function find($search=array())
     {
-        return $this->getBag($this->getTable()->find($search));
+        return $this->getCursor($this->getTable()->find($search));
     }
     /**
      * @brief lauch a search and put it on dust.
@@ -145,18 +131,18 @@ class Collection extends Object
      * @param type $search
      * @return false | \Twister\Document
      */
-    public function findOne($search=NULL)
+    public function findOne($search=array())
     {
-        return $this->getDust($this->getTable()->findOne($search));
+        return $this->getDocument($this->getTable()->findOne($search));
     }
     /**
      * @brief delete a dust
      * @param TwisterDust $dust
      * @return \Twister\Collection
      */
-    public function delete(Dust $dust)
+    public function delete(Document $document)
     {
-        $this->getTable()->remove(array('_id'=>$dust->getId()));
+        $this->getTable()->remove(array('_id'=>$document->getId()));
         return $this;
     }
     /**
@@ -164,9 +150,9 @@ class Collection extends Object
      * @param TwisterDust $dust
      * @return \Twister\Collection
      */
-    public function save(Dust $dust)
+    public function save(Document $document)
     {
-        $this->getTable()->save($dust->getData());
+        $this->getTable()->save($this->getDataFromDocument($document));
         return $this;
     }
     /**
@@ -176,9 +162,9 @@ class Collection extends Object
      * @param type $value
      * @return \Twister\Collection
      */
-    public function push(Dust $dust, $field, $value)
-    {
-        $this->getTable()->update(array('_id'=>$dust->getData()->_id), array('$push', array($field=>$value)));
+    public function push(Document $document, $field, $value) {
+
+        $this->getTable()->update(array('_id'=>$document->getId()), array('$push', array($field=>$value)));
         return $this;
     }
     /**
@@ -186,9 +172,9 @@ class Collection extends Object
      * @param Dust $dust
      * @return \Twister\Collection
      */
-    public function insert(Dust $dust)
+    public function insert(Document $document)
     {
-        $this->getTable()->insert($dust->getData());
+        $this->getTable()->insert($this->getDataFromDocument($document));
         return $this;
     }
     /**
@@ -220,23 +206,6 @@ class Collection extends Object
     public function findByField($field, $value)
     {
         return $this->find(array($field=>$value));
-    }
-    /**
-     * @brief set a relation betweend two twisters
-     * @param type $sourceField
-     * @param Twister $relationTwister
-     * @param type $relationField
-     * @return \Twister\Collection
-     */
-    public function addRelation($sourceField, Collection $collection, $relationField, $type='simple')
-    {
-        $orel1                              = new \stdClass();
-        $orel1->field                       = $relationField;
-        $orel1->twister                     = $collection;
-        $orel1->type                        = $type;
-        $this->relations[$sourceField]      = $orel1;
-        
-        return $this;
     }
     /**
      * @brief get relations of twister
@@ -293,24 +262,25 @@ class Collection extends Object
     	foreach ($documentProperties as $documentPropertie) {
     		$documentPropertie->setAccessible(true);
     		$name = $documentPropertie->getName();
-    		$value = $documentPropertie->getValue($document);
-    		if(is_object($value){
-    			if($value instanceof IDocument){
-    				$std[$name] = $this->getDataFromDocument($value);
+            $value = $documentPropertie->getValue($document);
+            
+            if(is_object($value)){
+    			if($value instanceof \MongoId){
+    				$std[$name] = $value;
     			}
     			else{
-    				continue;
+                    $std[$name] = $this->getDataFromDocument($value);
     			}
     		}
     		elseif(is_array($value)){
     		    $std[$name] = array();
     		    foreach($value as $v){
-    		        if(is_object($value){
-            			if($value instanceof IDocument){
-            				$std[$name][] = $this->getDataFromDocument($value);
+    		        if(is_object($value)){
+            			if($value instanceof \MongoId){
+            				$std[$name][] = $value;
             			}
             			else{
-            				continue;
+            				$std[$name][] = $this->getDataFromDocument($value);
             			}
             		}
             		else{
