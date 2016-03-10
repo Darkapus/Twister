@@ -8,42 +8,23 @@ MongoReader
     $files = new \Twister\Collection($db,'files'); // connect to files collection
     $users = new \Twister\Collection($db,'users'); // connect to users collection
 
-### add relational link
-
-    $files->addRelation('user', $users, '_id');
-
-
 ###create
 
-    $u1 = $users->getDust(); 
-    // or $user->getDust(array('firstname'=>'benjamin', 'lastname'=>'baschet'));
-    $u1->setfirstname('benjamin');
-    $u1->setlastname('baschet');
-    $u1->insert(); // insert
+    $u1 = $users->getEmptyDocument(); 
+    $u1->firstname = 'benjamin';
+    $u1->lastname = 'baschet';
+    $users->insert($u1); // insert
 
 
 ###update
 
     $u1 = $users->findOne();
     $u1->setfirstname('benjamine');
-    $u1->save(); // save
+    $users->save($u1); // save
 
 
 ### duplicate
 
     $u1 = $users->findOne();
-    $u1->setfirstname('benjamin');
-    $u1->insert(); // double
-
-
-### create a file with link to user
-
-    $f1 = $files->getDust();// or $f1 = $files->getDust(array('path'=>'/var/www/myface.png', 'name'=>'myface', 'user'=>$u1->getId()));
-    $f1->setpath('/var/www/myface.png')->setname('mtface')->setuser($u1)->insert();
-
-
-### show data
-
-    var_dump($files->findOne()->getuser()); // search and take user relation
-
-
+    $u2 clone $u1;
+    $users->insert($u2); // double
