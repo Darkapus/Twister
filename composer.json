@@ -1,5 +1,5 @@
 {
-    "name": "Darkapus/MongoReader",
+    "name": "Darkapus/Twister",
     "description": "php library to help reading data from mongodb",
     "type": "library",
     "keywords": ["mongo", "mongoclient"],
