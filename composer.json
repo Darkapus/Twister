@@ -1,0 +1,18 @@
+{
+    "name": "Darkapus/MongoReader",
+    "description": "php library to help reading data from mongodb",
+    "type": "library",
+    "keywords": ["mongo", "mongoclient"],
+    "homepage": "https://github.com/Darkapus/MongoReader",
+    "license": "CELESTE",
+    "authors": [
+        {
+            "name": "Darkapus"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Twister\\" : "."
+        }
+    }
+}
