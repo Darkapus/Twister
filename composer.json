@@ -3,7 +3,7 @@
     "description": "php library to help reading data from mongodb",
     "type": "library",
     "keywords": ["mongo", "mongoclient"],
-    "homepage": "https://github.com/Darkapus/MongoReader",
+    "homepage": "https://github.com/Darkapus/Twister",
     "license": "CELESTE",
     "authors": [
         {
