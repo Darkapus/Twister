@@ -157,14 +157,26 @@ class Collection extends Object
     }
     /**
      * @brief insert data on array
-     * @param TwisterDust $dust
+     * @param Document $document
      * @param type $field
      * @param type $value
      * @return \Twister\Collection
      */
     public function push(Document $document, $field, $value) {
 
-        $this->getTable()->update(array('_id'=>$document->getId()), array('$push', array($field=>$value)));
+        $this->getTable()->update(array('_id'=>$document->getId()), array('$push'=>array($field=>$value)));
+        return $this;
+    }
+    /**
+     * @brief pull data on array
+     * @param Document $document
+     * @param type $field
+     * @param type $value
+     * @return \Twister\Collection
+     */
+    public function pull(Document $document, $field, $value) {
+
+        $this->getTable()->update(array('_id'=>$document->getId()), array('$pull'=>array($field=>$value)));
         return $this;
     }
     /**
