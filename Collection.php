@@ -287,12 +287,12 @@ class Collection extends Object
     		elseif(is_array($value)){
     		    $std[$name] = array();
     		    foreach($value as $v){
-    		        if(is_object($value)){
+    		        if(is_object($v)){
             			if($value instanceof \MongoId){
-            				$std[$name][] = $value;
+            				$std[$name][] = $v;
             			}
             			else{
-            				$std[$name][] = $this->getDataFromDocument($value);
+            				$std[$name][] = $this->getDataFromDocument($v);
             			}
             		}
             		else{
