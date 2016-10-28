@@ -257,6 +257,9 @@ class Collection extends Object
             $sourceProperty->setAccessible(true);
             $name = $sourceProperty->getName();
             $value = $sourceProperty->getValue($sourceObject);
+            if($value instanceof \MongoDate){
+                $value = $value->toDateTime();
+            }
             if ($destinationReflection->hasProperty($name)) {
                 $propDest = $destinationReflection->getProperty($name);
                 $propDest->setAccessible(true);
@@ -275,11 +278,17 @@ class Collection extends Object
     		$documentPropertie->setAccessible(true);
     		$name = $documentPropertie->getName();
             $value = $documentPropertie->getValue($document);
-            
+            if($name == '_id' && is_null($value)) continue;
             if(is_object($value)){
     			if($value instanceof \MongoId){
     				$std[$name] = $value;
     			}
+                elseif($value instanceof \DateTime){
+                    $std[$name] = new \MongoDate($value->getTimestamp());
+                }
+                elseif($value instanceof \MongoDate){
+                    $std[$name] = $value;
+                }
     			else{
                     $std[$name] = $this->getDataFromDocument($value);
     			}
