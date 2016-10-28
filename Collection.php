@@ -140,7 +140,7 @@ class Collection extends Object
      * @param TwisterDust $dust
      * @return \Twister\Collection
      */
-    public function delete(Document $document)
+    public function delete($document)
     {
         $this->getTable()->remove(array('_id'=>$document->getId()));
         return $this;
@@ -150,7 +150,7 @@ class Collection extends Object
      * @param TwisterDust $dust
      * @return \Twister\Collection
      */
-    public function save(Document $document)
+    public function save($document)
     {
         $this->getTable()->save($this->getDataFromDocument($document));
         return $this;
@@ -162,7 +162,7 @@ class Collection extends Object
      * @param type $value
      * @return \Twister\Collection
      */
-    public function push(Document $document, $field, $value) {
+    public function push($document, $field, $value) {
 
         $this->getTable()->update(array('_id'=>$document->getId()), array('$push'=>array($field=>$value)));
         return $this;
@@ -174,7 +174,7 @@ class Collection extends Object
      * @param type $value
      * @return \Twister\Collection
      */
-    public function pull(Document $document, $field, $value) {
+    public function pull($document, $field, $value) {
 
         $this->getTable()->update(array('_id'=>$document->getId()), array('$pull'=>array($field=>$value)));
         return $this;
@@ -184,7 +184,7 @@ class Collection extends Object
      * @param Dust $dust
      * @return \Twister\Collection
      */
-    public function insert(Document $document)
+    public function insert($document)
     {
         $this->getTable()->insert($this->getDataFromDocument($document));
         return $this;
@@ -270,7 +270,7 @@ class Collection extends Object
         }
         return $destination;
     }
-    public function getDataFromDocument(Document $document){
+    public function getDataFromDocument($document){
     	$std = array();
     	$documentReflection = new \ReflectionObject($document);
     	$documentProperties = $documentReflection->getProperties();
