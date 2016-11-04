@@ -264,7 +264,7 @@ class Collection extends Object
             $name = $sourceProperty->getName();
             $value = $sourceProperty->getValue($sourceObject);
             if($value instanceof \MongoDate){
-                $value = $value->toDateTime();
+                $value = new \DateTime(strtotime($value->sec));
             }
             if ($destinationReflection->hasProperty($name)) {
                 $propDest = $destinationReflection->getProperty($name);
