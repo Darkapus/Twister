@@ -155,6 +155,12 @@ class Collection extends Object
         $this->getTable()->save($this->getDataFromDocument($document));
         return $this;
     }
+    
+    public function update($document, $query){
+    	$this->getTable()->update(array('_id'=>$document->getId()), $query);
+        return $this;
+    }
+    
     /**
      * @brief insert data on array
      * @param Document $document
