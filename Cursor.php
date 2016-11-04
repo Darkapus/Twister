@@ -5,7 +5,7 @@ namespace Twister;
  * @class TwisterBag
  * @author prismadeath (Benjamin Baschet)
  */
-class Cursor extends Object implements \Iterator
+class Cursor extends Object implements \Iterator, \JsonSerializable
 {
     private $documents=array();
     private $position=0;
@@ -61,5 +61,26 @@ class Cursor extends Object implements \Iterator
     {
         $this->documents->rewind();
         return $this;
+    }
+    
+    public function sort($array){
+    	$this->documents->sort($array);
+    	return $this;
+    }
+    
+    public function limit($nb){
+    	$this->documents->limit($nb);
+    	return $this;
+    }
+    
+    public function jsonSerialize() {
+        $tojson = [];
+        
+        foreach($this as $document){
+        	$document->id = $document->getId().'';
+        	$tojson[] = $document;
+        }
+        
+        return $tojson;
     }
 }
