@@ -74,8 +74,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     }
     
     public function count($bool=false){
-    	$this->documents->count($bool);
-    	return $this;
+    	return $this->documents->count($bool);
     }
     
     public function limit($nb){
