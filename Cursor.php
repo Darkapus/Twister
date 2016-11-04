@@ -68,6 +68,11 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     	return $this;
     }
     
+    public function skip($nb){
+    	$this->documents->skip($nb);
+    	return $this;
+    }
+    
     public function limit($nb){
     	$this->documents->limit($nb);
     	return $this;
