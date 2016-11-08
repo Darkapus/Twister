@@ -55,33 +55,48 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     }
     /**
      * @brief go to the first entry
-     * @return \TwisterBag
+     * @return \Twister\Cursor
      */
     public function rewind()
     {
         $this->documents->rewind();
         return $this;
     }
-    
-    public function sort($array){
-    	$this->documents->sort($array);
+    /**
+    * sort by a filter
+    * @return \Twister\Cursor
+    */
+    public function sort(array $filter){
+    	$this->documents->sort($filter);
     	return $this;
     }
-    
-    public function skip($nb){
-    	$this->documents->skip($nb);
+    /**
+    * skip number of
+    * @return \Twister\Cursor
+    */
+    public function skip($number){
+    	$this->documents->skip($number);
     	return $this;
     }
-    
+    /**
+    * count the number of data
+    * @return \Twister\Cursor
+    */
     public function count($bool=false){
     	return $this->documents->count($bool);
     }
-    
-    public function limit($nb){
-    	$this->documents->limit($nb);
+    /**
+    * define a number of returned data
+    * @return \Twister\Cursor
+    */
+    public function limit($number){
+    	$this->documents->limit($number);
     	return $this;
     }
-    
+    /**
+    * JsonSerialize implementation
+    * @return array
+    */
     public function jsonSerialize() {
         $tojson = [];
         
