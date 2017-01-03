@@ -20,15 +20,15 @@ class Connection extends Object
      * @param type $args
      */
     function __construct($server, $dbname=NULL, $args=NULL) {
-		$this->dbname = $dbname;
+	$this->dbname = $dbname;
 		
-		if(!class_exists('\MongoDB\Driver\Manager')) {
-			throw new Exception('Please install mongodb; check peck mongodb;'); // twister exception
-		}
+	if(!class_exists('\MongoDB\Driver\Manager')) {
+		throw new Exception('Please install mongodb; check peck mongodb;'); // twister exception
+	}
 		
-		$manager = new \MongoDB\Driver\Manager("mongodb://localhost:27017/$dbname");
-		$this->conn = $manager;
-		$this->bulk = new \MongoDB\Driver\BulkWrite;
+	$manager = new \MongoDB\Driver\Manager("mongodb://localhost:27017/$dbname");
+	$this->conn = $manager;
+	$this->bulk = new \MongoDB\Driver\BulkWrite;
     }
     /**
      * if autocommit = false, need to do : commit()
@@ -50,11 +50,11 @@ class Connection extends Object
     }
     
     function getManager(){
-		return $this->conn;
+	return $this->conn;
     }
     
     public function getDbName(){
-		return $this->dbname;
+	return $this->dbname;
     }
     /**
      * @brief set collection name
@@ -90,7 +90,7 @@ class Connection extends Object
      */
     public function findOne($search=NULL)
     {
-		$query = new \MongoDB\Driver\Query($search);
+	$query = new \MongoDB\Driver\Query($search);
         $cursor = $this->conn->executeQuery($this->dbname.'.'.$this->collection, $query);
         foreach($cursor as $row) return $row;    
     }
@@ -101,9 +101,9 @@ class Connection extends Object
      */
     public function delete($search)
     {
-		$this->bulk->delete($search);
-		if($this->isAutoCommit()) $this->commit();
-		return $this;
+	$this->bulk->delete($search);
+	if($this->isAutoCommit()) $this->commit();
+	return $this;
     }
     /**
      * @brief set data
@@ -114,7 +114,7 @@ class Connection extends Object
     {
         $this->bulk->update(['_id'=>$MongoObject->_id], ['$set'=>$MongoObject]);
         if($this->isAutoCommit()) $this->commit();
-		return $this;
+	return $this;
     }
     /**
      * @brief pull data on field multiple
@@ -125,8 +125,8 @@ class Connection extends Object
      */
     public function pull($mongoObject, $field, $value)
     {
-		$this->bulk->update(array('_id'=>$mongoObject->_id), array('$pull', array($field=>$value)));
-		if($this->isAutoCommit()) $this->commit();
+	$this->bulk->update(array('_id'=>$mongoObject->_id), array('$pull', array($field=>$value)));
+	if($this->isAutoCommit()) $this->commit();
         return $this;
     }
     /**
@@ -149,16 +149,16 @@ class Connection extends Object
      */
     public function insert($MongoObject)
     {
-		$this->bulk->insert($MongoObject);
-		if($this->isAutoCommit()) $this->commit();
-        return $this;
+	$mongoid = $this->bulk->insert($MongoObject);
+	if($this->isAutoCommit()) $this->commit();
+        return $mongoid;
     }
     /**
      * return array
      */
     public function aggregate($query){
-		$command = new \MongoDB\Driver\Command(['aggregate' => $this->collection,'pipeline'=>$query,'cursor'=>new \stdClass]);
-		$result = $this->getManager()->executeCommand($this->dbname, $command);
-		return $result->toArray();
+	$command = new \MongoDB\Driver\Command(['aggregate' => $this->collection,'pipeline'=>$query,'cursor'=>new \stdClass]);
+	$result = $this->getManager()->executeCommand($this->dbname, $command);
+	return $result->toArray();
     }
 }
