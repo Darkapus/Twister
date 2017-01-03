@@ -3,6 +3,7 @@
 MongoReader
 ===========
 
+An alternative orm for mongo. With Twister we can insert an Object document directly to mongo.
 
 ### create connections
 
