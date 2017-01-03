@@ -10,7 +10,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     private $documents=array();
     private $position=0;
     private $collection=null;
-    private $n=0;
+    private $cur=0;
     private $search;
     /**
      * 
@@ -24,7 +24,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
         }
         
         $this->position = 0;
-		$this->search = $search;
+	$this->search = $search;
     }
     /**
      * @brief go to the next entry
@@ -32,7 +32,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
      */
     public function next()
     {
-        return ++$this->n;
+        return ++$this->cur;
     }
     /**
      * @brief get current entry
@@ -41,7 +41,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     public function current()
     {
     	$documentName = $this->collection->getDocumentName();
-    	return $documentName::cast((object)$this->documents[$this->n]);
+    	return $documentName::cast((object)$this->documents[$this->cur]);
     }
     /**
      * @brief get the key entry
@@ -49,7 +49,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
      */
     public function key()
     {
-        return $this->n;
+        return $this->cur;
     }
     /**
      * @brief valid the current entry
@@ -57,7 +57,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
      */
     public function valid()
     {
-        return isset($this->documents[$this->n]);
+        return isset($this->documents[$this->cur]);
     }
     /**
      * @brief go to the first entry
@@ -65,7 +65,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
      */
     public function rewind()
     {
-        $this->n = 0;
+        $this->cur = 0;
         return $this;
     }
     /**
@@ -73,7 +73,7 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     * @return \Twister\Cursor
     */
     public function count(){
-		$cmd = new \MongoDB\Driver\Command( [ 'count' => $this->collection->getTableName(), 'query' => $this->search ] );
+	$cmd = new \MongoDB\Driver\Command( [ 'count' => $this->collection->getTableName(), 'query' => $this->search ] );
         $r = $this->collection->getConnection()->getManager()->executeCommand( $this->collection->getConnection()->getDbName(), $cmd )->toArray();
 
     	return $r[0]->n;
