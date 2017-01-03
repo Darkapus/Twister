@@ -157,8 +157,7 @@ class Connection extends Object
      * return array
      */
     public function aggregate($query){
-		$todo = ['aggregate' => $this->collection,'pipeline'=>$query,'cursor'=>new \stdClass];
-	 	$command = new \MongoDB\Driver\Command(['aggregate' => $this->collection,'pipeline'=>$query,'cursor'=>new \stdClass]);
+		$command = new \MongoDB\Driver\Command(['aggregate' => $this->collection,'pipeline'=>$query,'cursor'=>new \stdClass]);
 		$result = $this->getManager()->executeCommand($this->dbname, $command);
 		return $result->toArray();
     }
