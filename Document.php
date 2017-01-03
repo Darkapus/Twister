@@ -8,8 +8,8 @@ class Document implements \JsonSerializable {
 	public function getMongoId(){
 		return $this->_id;
 	}
-	public function setMongoId($id){
-		$this->_id = $id;
+	public function setMongoId($mongoid){
+		$this->_id = $mongoid;
 		return $this;
 	}
 	/**
@@ -25,7 +25,7 @@ class Document implements \JsonSerializable {
             $destination = new $destination();
         }
         $sourceReflection = new \ReflectionObject($sourceObject);
-        $destinationReflection = new \ReflectionObject($destination);
+        $destReflection = new \ReflectionObject($destination);
         $sourceProperties = $sourceReflection->getProperties();
         foreach ($sourceProperties as $sourceProperty) {
             $sourceProperty->setAccessible(true);
@@ -35,12 +35,10 @@ class Document implements \JsonSerializable {
             if($value instanceof \MongoDB\BSON\UTCDatetime){
                 $value = $value->toDateTime();
             }
-            if ($destinationReflection->hasProperty($name)) {
-                $propDest = $destinationReflection->getProperty($name);
+            if ($destReflection->hasProperty($name)) {
+                $propDest = $destReflection->getProperty($name);
                 $propDest->setAccessible(true);
                 $propDest->setValue($destination,$value);
-            } else {
-                $destination->$name = $value;
             }
         }
         return $destination;
@@ -60,36 +58,36 @@ class Document implements \JsonSerializable {
             $value = $documentPropertie->getValue($document);
             if($name == '_id' && is_null($value)) continue;
             if(is_object($value)){
-    			if($value instanceof \MongoDB\BSON\ObjectID){
-    				$std[$name] = $value;
-    			}
+    		if($value instanceof \MongoDB\BSON\ObjectID){
+    			$std[$name] = $value;
+    		}
                 elseif($value instanceof \DateTime){
                     $std[$name] = new \MongoDB\BSON\UTCDatetime($value->getTimestamp() * 1000);
                 }
                 elseif($value instanceof \MongoDB\BSON\UTCDatetime){
                     $std[$name] = $value;
                 }
-    			else{
-    				if(method_exists($value, 'getData')){
-    					$std[$name] = $value->getData();	
-    				}
-                    else{
-                    	$std[$name] = $value;
-                    }
+    		else{
+    			if(method_exists($value, 'getData')){
+    				$std[$name] = $value->getData();	
     			}
+                    	else{
+                    		$std[$name] = $value;
+                    	}
     		}
-    		elseif(is_array($value)){
-    		    $std[$name] = array();
-    		    foreach($value as $v){
-    		        if(is_object($v)){
-            			if($value instanceof \MongoDB\BSON\ObjectID){
-            				$std[$name][] = $v;
-            			}
-            			else{
-            				if(method_exists($value, 'getData')){
-            					$std[$name][] = $v->getData();
-            				}
-            				else{
+    	}
+    	elseif(is_array($value)){
+    	    $std[$name] = array();
+    	    foreach($value as $v){
+    	        if(is_object($v)){
+        		if($value instanceof \MongoDB\BSON\ObjectID){
+        			$std[$name][] = $v;
+        		}
+        		else{
+        			if(method_exists($value, 'getData')){
+        				$std[$name][] = $v->getData();
+        			}
+        			else{
 		                    	$std[$name] = $value;
 		                    }
             			}
