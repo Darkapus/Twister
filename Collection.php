@@ -64,8 +64,8 @@ class Collection extends Object
     public function getDocument($data=array())
     {
         if($data){
-			$documentName = $this->documentName;
-            return $documentName::cast((object)$data);
+		$documentName = $this->documentName;
+        	return $documentName::cast((object)$data);
         }
         else{
             // create empty document
@@ -199,7 +199,8 @@ class Collection extends Object
      */
     public function insert($document)
     {
-        $this->getTable()->insert($document->getData());
+        $ident = $this->getTable()->insert($document->getData());
+	$document->setMongoId($ident); // push the mongo id to the document
         return $this;
     }
     /**
