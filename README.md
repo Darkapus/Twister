@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/20b9ec685dfc4b71bd5aa8634ad153fd)](https://www.codacy.com/app/bbaschet/Twister?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Darkapus/Twister&amp;utm_campaign=Badge_Grade)
+
 MongoReader
 ===========
 
