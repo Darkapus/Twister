@@ -2,14 +2,17 @@
 namespace Twister;
 /**
  * @brief manage the connection language with mongodb
- * @class TwisterConnection
- * @author prismadeath (Benjamin Baschet)
+ * @class \Twister\Connection
+ * @author Darkapus (Benjamin Baschet)
  */
 class Connection extends Object
 {
-    private $collection;
-    private $conn;
-    private $db;
+    protected $collection;
+    protected $conn;
+    protected $dbname;
+    protected $autocommit = true;
+    protected $bulk;
+    
     /**
      * 
      * @param type $server
@@ -17,33 +20,49 @@ class Connection extends Object
      * @param type $args
      */
     function __construct($server, $dbname=NULL, $args=NULL) {
-        $class = '\MongoClient'; 
-  
-        if(!class_exists($class)){ 
-            $class = '\Mongo'; 
-            if(!class_exists($class)){
-                Throw new Exception("Please, install mongo for php: sudo pecl install mongo");
-            }
-        } 
-        
-        $this->conn = new $class($server); 
-        if(!is_null($dbname)) $this->db = $this->conn->selectDB($dbname);
+		$this->dbname = $dbname;
+		
+		if(!class_exists('\MongoDB\Driver\Manager')) {
+			throw new Exception('Please install mongodb; check peck mongodb;'); // twister exception
+		}
+		
+		$manager = new \MongoDB\Driver\Manager("mongodb://localhost:27017/$dbname");
+		$this->conn = $manager;
+		$this->bulk = new \MongoDB\Driver\BulkWrite;
     }
     /**
-     * @brief get mongo db
-     * @return \MongoDb
+     * if autocommit = false, need to do : commit()
+     * it is preferable to set autocommit at false when there are a lot of operations
+     * return \Twister\Connection
      */
-    public function getDb()
-    {
-        return $this->db;
+    public function commit(){
+    	$this->conn->executeBulkWrite($this->dbname.'.'.$this->collection, $this->bulk);
+    	$this->bulk = new \MongoDB\Driver\BulkWrite;
+    	return $this;
+    }
+    
+    public function setAutoCommit($bool=true){
+    	$this->autocommit = $bool;
+    	return $this;
+    }
+    public function isAutoCommit(){
+    	return $this->autocommit;
+    }
+    
+    function getManager(){
+		return $this->conn;
+    }
+    
+    public function getDbName(){
+		return $this->dbname;
     }
     /**
      * @brief set collection name
      * @param type $name
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function setCollectionName($name){
-        $this->collection = $this->db->$name;
+        $this->collection = $name;
         return $this;
     }
     /**
@@ -58,13 +77,11 @@ class Connection extends Object
      * @param type $search
      * @return \MongoCursor
      */
-    public function find($search=NULL)
+    public function find($search=NULL, $options)
     {
-        if($search)
-            return $this->result = $this->getCollection()->find($search);
-        else {
-            return $this->result = $this->getCollection()->find();
-        }
+		$query = new \MongoDB\Driver\Query($search, $options);
+		$cursor = $this->conn->executeQuery($this->dbname.'.'.$this->collection, $query);
+		return $cursor;
     }
     /**
      * @brief get the first result of search
@@ -73,41 +90,43 @@ class Connection extends Object
      */
     public function findOne($search=NULL)
     {
-        if($search)
-        return $this->getCollection()->findOne($search);
-        else
-            return $this->getCollection()->findOne();
+		$query = new \MongoDB\Driver\Query($search);
+        $cursor = $this->conn->executeQuery($this->dbname.'.'.$this->collection, $query);
+        foreach($cursor as $row) return $row;    
     }
     /**
      * @brief delete data from search
      * @param type $search
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function delete($search)
     {
-        $this->getCollection()->remove($search);
-        return $this;
+		$this->bulk->delete($search);
+		if($this->isAutoCommit()) $this->commit();
+		return $this;
     }
     /**
      * @brief set data
      * @param type $MongoObject
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function save($MongoObject)
     {
-        $this->getCollection()->save($MongoObject);
-        return $this;
+        $this->bulk->update(['_id'=>$MongoObject->_id], ['$set'=>$MongoObject]);
+        if($this->isAutoCommit()) $this->commit();
+		return $this;
     }
     /**
      * @brief pull data on field multiple
      * @param type $mongoObject
      * @param type $field
      * @param type $value
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function pull($mongoObject, $field, $value)
     {
-        $this->getCollection()->update(array('_id'=>$mongoObject->_id), array('$pull', array($field=>$value)));
+		$this->bulk->update(array('_id'=>$mongoObject->_id), array('$pull', array($field=>$value)));
+		if($this->isAutoCommit()) $this->commit();
         return $this;
     }
     /**
@@ -115,47 +134,31 @@ class Connection extends Object
      * @param type $mongoObject
      * @param type $field
      * @param type $value
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function push($mongoObject, $field, $value)
     {
-        $this->getCollection()->update(array('_id'=>$mongoObject->_id), array('$push', array($field=>$value)));
+        $this->bulk->update(array('_id'=>$mongoObject->_id), array('$push', array($field=>$value)));
+        if($this->isAutoCommit()) $this->commit();
         return $this;
     }
     /**
      * @brief create du data on mongodb
      * @param type $MongoObject
-     * @return \TwisterConnection
+     * @return \Twister\Connection
      */
     public function insert($MongoObject)
     {
-        $this->getCollection()->insert($MongoObject);
+		$this->bulk->insert($MongoObject);
+		if($this->isAutoCommit()) $this->commit();
         return $this;
     }
     /**
-     * @brief get on db
-     * @param type $name
-     * @return type
+     * return array
      */
-    public function __get($name) {
-        return $this->db->$name;
-    }
-    /**
-     * @brief call method on db
-     * @param type $name
-     * @param type $arguments
-     * @return type
-     */
-    public function __call($name, $arguments) {
-        return $this->db->$name(implode(',', $arguments));
-    }
-    /**
-     * @brief create new collection
-     * @param type $name
-     * @return type
-     */
-    public function create($name)
-    {
-        return $this->db->createCollection($name);
+    public function aggregate($query){
+		$command = new \MongoDB\Driver\Command(['aggregate' => $this->collection,'pipeline'=>$query,'cursor'=>new \stdClass]);
+		$result = $this->getManager()->executeCommand($this->dbname, $command);
+		return $result->toArray();
     }
 }

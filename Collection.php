@@ -23,6 +23,7 @@ class Collection extends Object
     protected $cursorName = '\Twister\Cursor';
 
     protected $tableName = null;
+    
     /**
      * 
      * @param Connection $tc
@@ -43,13 +44,16 @@ class Collection extends Object
         $this->documentName = $name;
         return $this;
     }
+    public function getTableName(){
+	return $this->tableName;
+    }
     public function setTableName($tableName){
         $this->tableName = $tableName;
         return $this;
     }
     public function getTable(){
         $name = $this->tableName;
-        return $this->getConnection()->getDb()->$name;
+        return $this->getConnection()->setCollectionName($name);
     }
     /**
      * extends Document or implement IDocument
@@ -60,16 +64,16 @@ class Collection extends Object
     public function getDocument($data=array())
     {
         if($data){
-
-            // cast data on new documentName()
-            $document = $this->cast((object)$data);
-            
-            return $document;
+			$documentName = $this->documentName;
+            return $documentName::cast((object)$data);
         }
         else{
             // create empty document
             return false;
         }
+    }
+    public function getDocumentName(){
+    	return $this->documentName;
     }
     /**
      * create an empty document. Called before insert.
@@ -103,10 +107,10 @@ class Collection extends Object
      * @param type $result
      * @return \Twister\Cursor
      */
-    public function getCursor($result)
+    public function getCursor($result, $search=[])
     {
         $name = $this->cursorName;
-        return new $name($this, $result);
+        return new $name($this, $result, $search);
     }
     /**
      * @brief get twister connection
@@ -121,9 +125,12 @@ class Collection extends Object
      * @param type $search
      * @return \Twister\Cursor
      */
-    public function find($search=array())
+    public function find($search=array(), $limit=25, $skip=0, $sort=[])
     {
-        return $this->getCursor($this->getTable()->find($search));
+        return $this->getCursor($this->getTable()->find($search, ['limit'=>$limit, 'skip'=>$skip, 'sort'=>$sort]), $search);
+    }
+    public function aggregate($query){
+		return $this->getTable()->aggregate($query);	
     }
     /**
      * @brief lauch a search and put it on dust.
@@ -142,7 +149,7 @@ class Collection extends Object
      */
     public function delete($document)
     {
-        $this->getTable()->remove(array('_id'=>$document->getId()));
+        $this->getTable()->delete(array('_id'=>$document->getMongoId()));
         return $this;
     }
     /**
@@ -152,12 +159,12 @@ class Collection extends Object
      */
     public function save($document)
     {
-        $this->getTable()->save($this->getDataFromDocument($document));
+        $this->getTable()->save($document->getData());
         return $this;
     }
     
     public function update($document, $query){
-    	$this->getTable()->update(array('_id'=>$document->getId()), $query);
+    	$this->getTable()->update(array('_id'=>$document->getMongoId()), $query);
         return $this;
     }
     
@@ -170,7 +177,7 @@ class Collection extends Object
      */
     public function push($document, $field, $value) {
 
-        $this->getTable()->update(array('_id'=>$document->getId()), array('$push'=>array($field=>$value)));
+        $this->getTable()->update(array('_id'=>$document->getMongoId()), array('$push'=>array($field=>$value)));
         return $this;
     }
     /**
@@ -182,7 +189,7 @@ class Collection extends Object
      */
     public function pull($document, $field, $value) {
 
-        $this->getTable()->update(array('_id'=>$document->getId()), array('$pull'=>array($field=>$value)));
+        $this->getTable()->update(array('_id'=>$document->getMongoId()), array('$pull'=>array($field=>$value)));
         return $this;
     }
     /**
@@ -192,7 +199,7 @@ class Collection extends Object
      */
     public function insert($document)
     {
-        $this->getTable()->insert($this->getDataFromDocument($document));
+        $this->getTable()->insert($document->getData());
         return $this;
     }
     /**
@@ -250,75 +257,12 @@ class Collection extends Object
      * @param object $sourceObject
      * @return object
      */
-    function cast($sourceObject)
+    public function cast($sourceObject)
     {
         $destination = $this->documentName;
-        if (is_string($destination)) {
-            $destination = new $destination();
-        }
-        $sourceReflection = new \ReflectionObject($sourceObject);
-        $destinationReflection = new \ReflectionObject($destination);
-        $sourceProperties = $sourceReflection->getProperties();
-        foreach ($sourceProperties as $sourceProperty) {
-            $sourceProperty->setAccessible(true);
-            $name = $sourceProperty->getName();
-            $value = $sourceProperty->getValue($sourceObject);
-            if($value instanceof \MongoDate){
-                $value = new \DateTime(strtotime($value->sec));
-            }
-            if ($destinationReflection->hasProperty($name)) {
-                $propDest = $destinationReflection->getProperty($name);
-                $propDest->setAccessible(true);
-                $propDest->setValue($destination,$value);
-            } else {
-                $destination->$name = $value;
-            }
-        }
-        return $destination;
+        return $destination::cast($sourceObject);
     }
     public function getDataFromDocument($document){
-    	$std = array();
-    	$documentReflection = new \ReflectionObject($document);
-    	$documentProperties = $documentReflection->getProperties();
-    	foreach ($documentProperties as $documentPropertie) {
-    		$documentPropertie->setAccessible(true);
-    		$name = $documentPropertie->getName();
-            $value = $documentPropertie->getValue($document);
-            if($name == '_id' && is_null($value)) continue;
-            if(is_object($value)){
-    			if($value instanceof \MongoId){
-    				$std[$name] = $value;
-    			}
-                elseif($value instanceof \DateTime){
-                    $std[$name] = new \MongoDate($value->getTimestamp());
-                }
-                elseif($value instanceof \MongoDate){
-                    $std[$name] = $value;
-                }
-    			else{
-                    $std[$name] = $this->getDataFromDocument($value);
-    			}
-    		}
-    		elseif(is_array($value)){
-    		    $std[$name] = array();
-    		    foreach($value as $v){
-    		        if(is_object($v)){
-            			if($value instanceof \MongoId){
-            				$std[$name][] = $v;
-            			}
-            			else{
-            				$std[$name][] = $this->getDataFromDocument($v);
-            			}
-            		}
-            		else{
-            		    $std[$name][] = $v;
-            		}
-    		    }
-    		}
-    		else{
-    			$std[$name] = $value;
-    		}
-    	}
-    	return $std;	
+    	return $document->getData();
     }
 }
