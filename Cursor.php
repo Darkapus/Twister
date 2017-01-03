@@ -74,9 +74,9 @@ class Cursor extends Object implements \Iterator, \JsonSerializable
     */
     public function count(){
 	$cmd = new \MongoDB\Driver\Command( [ 'count' => $this->collection->getTableName(), 'query' => $this->search ] );
-        $r = $this->collection->getConnection()->getManager()->executeCommand( $this->collection->getConnection()->getDbName(), $cmd )->toArray();
+        $result = $this->collection->getConnection()->getManager()->executeCommand( $this->collection->getConnection()->getDbName(), $cmd )->toArray();
 
-    	return $r[0]->n;
+    	return $result[0]->n;
     }
     /**
     * JsonSerialize implementation
